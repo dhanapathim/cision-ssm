@@ -1,7 +1,7 @@
 import { test } from '@playwright/test';
 import { addStepMetric } from '../utils/performanceMetrics.js';
 
-export let userActionCount=0;
+export let userActionCount = 0;
 /**
  * namedStep - Wraps a Playwright test step with:
  * - Step description + test info
@@ -38,7 +38,7 @@ export async function qumAction(description, page, fn) {
   const endUserAction = Date.now();
   timings.userActionTime = endUserAction - startUserAction;
 
-await waitForPageStability(page, 800, 5000);
+  // await waitForPageStability(page, 800, 5000);
   const endSystemDelay = Date.now();
   timings.systemDelay = endSystemDelay - startSystemDelay;
 
@@ -60,38 +60,18 @@ await waitForPageStability(page, 800, 5000);
     return entries;
   });
 
-/*
-  if (!perfEntries || perfEntries.length === 0) {
-    console.log('No navigation/resource entries detected during this step.');
-  } else {
-    console.log('Entries during step:');
-    perfEntries.forEach((entry, i) => {
-      console.log(
-        `${i + 1}. [${entry.type.toUpperCase()}] ${entry.name} | Status: ${entry.status} | Time: ${entry.time}ms`
-      );
-    });
-  }
-*/
-if (!perfEntries)
-{
-    console.log('No navigation/resource entries detected during this step.');
-}
-else
-{
-    console.log('Entries count during step:{}', perfEntries.length);
-}
+  addStepMetric({
+    task: taskName,
+    scenario: scenario,
+    step: step,
+    action: description,
+    userActionTime: timings.userActionTime,
+    systemDelay: timings.systemDelay,
+    networkCalls: perfEntries,
+    isValid: true
+  });
 
-await addStepMetric({
-  task: taskName,
-  scenario: scenario,
-  step: step,
-  action: description,
-  userActionTime: timings.userActionTime,
-  systemDelay: timings.systemDelay,
-  networkCalls: perfEntries,
-  isValid: true
-});
-userActionCount++;
+  userActionCount++;
   console.log(`--- END of Action ${description} ---\n`);
 }
 
@@ -110,6 +90,7 @@ function formatTaskName(fileName) {
     .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(' ');
 }
+
 async function waitForPageStability(page, stabilityTime = 800, timeout = 5000) {
   await page.evaluate(
     ({ stabilityTime, timeout }) => {
@@ -128,6 +109,6 @@ async function waitForPageStability(page, stabilityTime = 800, timeout = 5000) {
         observer.disconnect();
       })();
     },
-    { stabilityTime, timeout } // pass arguments as a single object
+    { stabilityTime, timeout }
   );
 }

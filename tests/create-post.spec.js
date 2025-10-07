@@ -1,36 +1,35 @@
 // tests/brandwatch-login.spec.js
 import { test, expect, chromium } from '@playwright/test';
-import { qumAction,userActionCount } from '../utils/qumAction.js';
-import { qumValidation,isValid } from '../utils/qumValidation.js';
-import { writeAllMetricsToFile,addOutCome } from '../utils/performanceMetrics.js';
+import { qumAction, userActionCount } from '../utils/qumAction.js';
+import { qumValidation, isValid } from '../utils/qumValidation.js';
+import { writeAllMetricsToFile, addOutCome } from '../utils/performanceMetrics.js';
 
 test.describe('Instagram', () => {
-  test.beforeAll(async() => {
+  test.beforeAll(async () => {
   });
 
-  test.afterAll(async() => {
+  test.afterAll(async () => {
 
     try {
-        let outCome="not Completed";
-        if(isValid)
-        {
-        outCome="completed";
-        }
-        addOutCome(userActionCount, outCome);
-        const fileName = test.info().file.split('/').pop().replace('.spec.js', '');
+      let outCome = "Not Completed";
+      if (isValid) {
+        outCome = "Completed";
+      }
+      addOutCome(userActionCount, outCome);
+      const fileName = test.info().file.split('/').pop().replace('.spec.js', '');
 
-        await writeAllMetricsToFile(fileName);
-        console.log('✅ Metrics written successfully');
-        } catch (err) {
-            console.error('⚠️ Failed to write metrics:', err);
-        }
+      await writeAllMetricsToFile(fileName);
+      console.log('✅ Metrics written successfully');
+    } catch (err) {
+      console.error('⚠️ Failed to write metrics:', err);
+    }
   });
 
-  test('Login', async ({page, context, baseURL }) => {
-  
+  test('Login', async ({ page, context, baseURL }) => {
+
     // 1. Open the url from config
     await qumAction('Open Url', page, async () => {
-      await page.goto(baseURL, { waitUntil: 'domcontentloaded' ,timeout: 60000});
+      await page.goto(baseURL, { waitUntil: 'load' });
     });
 
     // Assert title
@@ -40,8 +39,6 @@ test.describe('Instagram', () => {
 
     // await page.goto(baseURL, { waitUntil: 'load' });
 
-    
-    
     // 2. Accept Cookies
     await qumAction('Accept Cookies', page, async () => {
       await page.locator("//*[@id='onetrust-accept-btn-handler']").click();
@@ -53,22 +50,24 @@ test.describe('Instagram', () => {
     });
     await page.screenshot({ path: './screenshots/signin-clicked.png' });
 
+    let newTab;
+
     // 4. Click "Social Media Management"
     await qumAction('Select Social Media Management', page, async () => {
       const ssmLocator = page.locator("(//span[contains(@class,'f3-lg-xl u-hover__underline-target span-head')][contains(text(),'Social Media')])[1]");
       await ssmLocator.click();
+
+      [newTab] = await Promise.all([
+        context.waitForEvent('page'),
+      ]);
+
+      console.log(await newTab.title());
     });
 
-    const [newTab] = await Promise.all([
-      context.waitForEvent('page'), // wait for the new tab event
-    ]);
-
-    console.log(await newTab.title());
-    console.log("UserName:", process.env.BW_USERNAME);
-    console.log("UserPwd:", process.env.BW_PASSWORD);
     // 5. Enter username.
     await qumAction('Enter username', newTab, async () => {
       await newTab.locator('//*[@id="lookupUsername"]').fill(process.env.BW_USERNAME);
+      await newTab.waitForLoadState('load');
     });
 
     // 6. Click Next to go to Password Page
