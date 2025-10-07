@@ -1,24 +1,16 @@
 // tests/brandwatch-login.spec.js
 import { test, expect, chromium } from '@playwright/test';
-import { qumAction,userActionCount } from '../utils/qumAction.js';
-import { qumValidation,isValid } from '../utils/qumValidation.js';
-import { writeAllMetricsToFile,addOutCome } from '../utils/performanceMetrics.js';
+import { qumAction } from '../utils/qumAction.js';
+import { qumValidation } from '../utils/qumValidation.js';
+import { writeAllMetricsToFile } from '../utils/performanceMetrics.js';
 
 test.describe('Instagram', () => {
   test.beforeAll(async() => {
   });
 
   test.afterAll(async() => {
-
+    const fileName = test.info().file.split('/').pop().replace('.spec.js', '');
     try {
-        let outCome="not Completed";
-        if(isValid)
-        {
-        outCome="completed";
-        }
-        addOutCome(userActionCount, outCome);
-        const fileName = test.info().file.split('/').pop().replace('.spec.js', '');
-
         await writeAllMetricsToFile(fileName);
         console.log('✅ Metrics written successfully');
         } catch (err) {
@@ -27,7 +19,7 @@ test.describe('Instagram', () => {
   });
 
   test('Login', async ({page, context, baseURL }) => {
-  
+
     // 1. Open the url from config
     await qumAction('Open Url', page, async () => {
       await page.goto(baseURL, { waitUntil: 'domcontentloaded' ,timeout: 60000});
@@ -40,8 +32,8 @@ test.describe('Instagram', () => {
 
     // await page.goto(baseURL, { waitUntil: 'load' });
 
-    
-    
+
+
     // 2. Accept Cookies
     await qumAction('Accept Cookies', page, async () => {
       await page.locator("//*[@id='onetrust-accept-btn-handler']").click();
@@ -60,12 +52,12 @@ test.describe('Instagram', () => {
     });
 
     const [newTab] = await Promise.all([
-      context.waitForEvent('page'), // wait for the new tab event
+      context.waitForEvent('page'),
     ]);
 
     console.log(await newTab.title());
-    console.log("UserName:", process.env.BW_USERNAME);
-    console.log("UserPwd:", process.env.BW_PASSWORD);
+    await newTab.waitForLoadState('load');
+
     // 5. Enter username.
     await qumAction('Enter username', newTab, async () => {
       await newTab.locator('//*[@id="lookupUsername"]').fill(process.env.BW_USERNAME);

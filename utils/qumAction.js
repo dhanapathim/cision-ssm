@@ -1,7 +1,7 @@
 import { test } from '@playwright/test';
 import { addStepMetric } from '../utils/performanceMetrics.js';
 
-
+export let userActionCount=0;
 /**
  * namedStep - Wraps a Playwright test step with:
  * - Step description + test info
@@ -88,8 +88,10 @@ await addStepMetric({
   action: description,
   userActionTime: timings.userActionTime,
   systemDelay: timings.systemDelay,
-  entriesCount: perfEntries
+  networkCalls: perfEntries,
+  isValid: true
 });
+userActionCount++;
   console.log(`--- END of Action ${description} ---\n`);
 }
 
