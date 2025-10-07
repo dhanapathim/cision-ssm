@@ -1,4 +1,3 @@
-// tests/brandwatch-login.spec.js
 import { test, expect, chromium } from '@playwright/test';
 import { qumAction, userActionCount } from '../utils/qumAction.js';
 import { qumValidation, isValid } from '../utils/qumValidation.js';
@@ -9,7 +8,6 @@ test.describe('Instagram', () => {
   });
 
   test.afterAll(async () => {
-
     try {
       let outCome = "Not Completed";
       if (isValid) {
@@ -18,7 +16,7 @@ test.describe('Instagram', () => {
       addOutCome(userActionCount, outCome);
       const fileName = test.info().file.split('/').pop().replace('.spec.js', '');
 
-      await writeAllMetricsToFile(fileName);
+      writeAllMetricsToFile(fileName);
       console.log('✅ Metrics written successfully');
     } catch (err) {
       console.error('⚠️ Failed to write metrics:', err);

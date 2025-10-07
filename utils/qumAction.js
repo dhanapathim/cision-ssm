@@ -13,7 +13,6 @@ export let userActionCount = 0;
  */
 export async function qumAction(description, page, fn) {
   const info = test.info();
-  const timings = {};
 
   if (!page || typeof page.evaluate !== 'function') {
     throw new Error(`namedStep expected a Playwright Page, but got: ${page}`);
@@ -28,26 +27,59 @@ export async function qumAction(description, page, fn) {
   console.log(`Step: ${step}`);
   console.log(`Action: ${description}`);
 
-  const startUserAction = Date.now();
-  const startSystemDelay = startUserAction;
-
+  const userStart = performance.now();
   // Execute the step
   await test.step(description, async () => {
     await fn();
   });
-  const endUserAction = Date.now();
-  timings.userActionTime = endUserAction - startUserAction;
+  const requestSent = performance.now();
 
-  // await waitForPageStability(page, 800, 5000);
-  const endSystemDelay = Date.now();
-  timings.systemDelay = endSystemDelay - startSystemDelay;
+  // wait for backend response and UI update
+  await waitForDOMInteractive(page);
+  const systemEnd = performance.now();
 
-  console.log(`🧩 Metrics`);
-  console.log(`User Action Time: ${timings.userActionTime} ms`);
-  console.log(`System Delay: ${timings.systemDelay} ms`);
+  const userActionTime = requestSent - userStart;
+  const systemDelay = systemEnd - requestSent;
+  const totalTime = userActionTime + systemDelay;
+
+  console.log(`User Action Time: ${userActionTime.toFixed(2)}ms`);
+  console.log(`System Delay: ${systemDelay.toFixed(2)}ms`);
 
   // Capture simplified performance entries
-  const perfEntries = await page.evaluate(() => {
+  const perfEntries = await getPerfEntries(page);
+
+  addStepMetric({
+    task: taskName,
+    scenario: scenario,
+    step: step,
+    action: description,
+    userActionTime,
+    systemDelay,
+    totalTime,
+    networkCalls: perfEntries,
+    isValid: true,
+  });
+
+  userActionCount++;
+  console.log(`--- END of Action ${description} ---\n`);
+}
+
+/**
+ * Wait until the DOM is interactive (or complete).
+ * Works for both normal web pages and SPAs that trigger DOM changes early.
+ */
+export async function waitForDOMInteractive(page, timeout = 15000) {
+  await page.waitForFunction(
+    () => ['interactive', 'complete'].includes(document.readyState),
+    { timeout }
+  );
+
+  // Small buffer to ensure scripts attached to DOM have executed
+  await page.waitForTimeout(300);
+}
+
+async function getPerfEntries(page) {
+  return await page.evaluate(() => {
     const entries = performance.getEntries()
       .filter(e => e.entryType === 'navigation' || e.entryType === 'resource')
       .map(entry => ({
@@ -59,20 +91,6 @@ export async function qumAction(description, page, fn) {
     performance.clearResourceTimings();
     return entries;
   });
-
-  addStepMetric({
-    task: taskName,
-    scenario: scenario,
-    step: step,
-    action: description,
-    userActionTime: timings.userActionTime,
-    systemDelay: timings.systemDelay,
-    networkCalls: perfEntries,
-    isValid: true
-  });
-
-  userActionCount++;
-  console.log(`--- END of Action ${description} ---\n`);
 }
 
 /**
