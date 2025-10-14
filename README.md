@@ -9,4 +9,3 @@ This project is an Accelerator to generate the QUM Metrics using the Playwright 
 
 ## Reports Generated
 TODO
-
