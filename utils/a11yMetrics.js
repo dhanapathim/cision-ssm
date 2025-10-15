@@ -55,7 +55,7 @@ export function checkAllyViolations(page, action, task, scenario, step) {
   })();
 }
 
-export function writeA11yMetricsToFile(fileName = 'allyMetrics',filePath) {
+export function writeA11yMetricsToFile(fileName = 'allyMetrics', filePath) {
   if (allyData.length > 0) {
     fileName = fileName + ".json"
     const METRICS_FILE = path.join(filePath, "ally", fileName);

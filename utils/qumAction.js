@@ -39,8 +39,8 @@ export async function qumAction(description, page, fn) {
     await fn();
   });
   const requestSent = performance.now();
-  const runA11y=info.project.metadata.a11y?.toLowerCase() === 'true' || false;
-  const runPerformance =info.project.metadata.performance?.toLowerCase() === 'true' || false;
+  const runA11y = info.project.metadata.a11y?.toLowerCase() === 'true' || false;
+  const runPerformance = info.project.metadata.performance?.toLowerCase() === 'true' || false;
   console.log(`A11y=${runA11y}; perf=${runPerformance}`);
   if (runPerformance) {
     await getPerformanceMetrics(page, taskName, scenario, step, description, userStart, requestSent);
@@ -70,8 +70,8 @@ function formatTaskName(fileName) {
     .join(' ');
 }
 export function writeQUM(testInfo) {
-  const runA11y=testInfo.project.metadata.a11y?.toLowerCase() === 'true' || false;
-  const runPerformance =testInfo.project.metadata.performance?.toLowerCase() === 'true' || false;
+  const runA11y = testInfo.project.metadata.a11y?.toLowerCase() === 'true' || false;
+  const runPerformance = testInfo.project.metadata.performance?.toLowerCase() === 'true' || false;
   console.log(`in writeQUM a11y=${testInfo.project.metadata.a11y} and perf=${testInfo.project.metadata.performance}`);
   return runA11y || runPerformance;
 }

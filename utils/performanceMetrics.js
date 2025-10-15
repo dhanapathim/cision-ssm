@@ -90,7 +90,7 @@ async function getPerformanceMetrics(page, taskName, scenario, step, description
 /**
  * Write all collected metrics once at the end
  */
-function writePerformanceMetricsToFile(fileName = 'performanceMetrics',commonDir) {
+function writePerformanceMetricsToFile(fileName = 'performanceMetrics', commonDir) {
   if (stepMetrics.length > 0) {
     let outCome = "Not Completed";
     if (isValid) {
