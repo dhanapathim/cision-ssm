@@ -1,25 +1,17 @@
 import { test, expect, chromium } from '@playwright/test';
-import { qumAction, writeQUM } from '../utils/qumAction.js';
-import { qumValidation} from '../utils/qumValidation.js';
-import { writePerformanceMetricsToFile, addOutCome } from '../utils/performanceMetrics.js';
-import { writeA11yMetricsToFile } from '../utils/a11yMetrics.js';
+import { qumAction, writeQUMFiles } from '../utils/qumAction.js';
+import { qumValidation } from '../utils/qumValidation.js';
 
 test.describe('Instagram', () => {
   test.beforeAll(async () => {
   });
 
   test.afterAll(async () => {
-    if(writeQUM(test.info())){
-        try {
-          const fileName = test.info().file.split('/').pop().replace('.spec.js', '');
-          const filePath= test.info().project.metadata.screenshotDir;
-          writePerformanceMetricsToFile(fileName,filePath);
-          writeA11yMetricsToFile(fileName,filePath);
-          console.log('✅ Metrics written successfully');
-        } catch (err) {
-          console.error('⚠️ Failed to write metrics:', err);
-        }
-    }
+
+    const fileName = test.info().file.split('/').pop().replace('.spec.js', '');
+    const filePath = test.info().project.metadata.screenshotDir;
+    writeQUMFiles(test.info(), fileName, filePath);
+
   });
 
   test('Login', async ({ page, context, baseURL }) => {

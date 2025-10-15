@@ -43,6 +43,11 @@ export default defineConfig({
       use: {screenshot: 'only-on-failure',trace: 'retain-on-failure' },
       metadata: { a11y: 'true', screenshotDir },
     },
+    {
+      name: 'browserMetrics=true',
+      use: {screenshot: 'only-on-failure',trace: 'retain-on-failure' },
+      metadata: { browserMetrics: 'true', screenshotDir },
+    },
  ],
   globalSetup: './utils/global-setup.js'
 });
