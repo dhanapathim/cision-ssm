@@ -31,13 +31,13 @@ export default defineConfig({
 
   projects: [ 
    // { name: 'chromium', use: { ...devices['Desktop Chrome'] }},
-    /*{
+    {
       name: 'performance=true',
       use: { screenshot: 'only-on-failure',trace: 'retain-on-failure',
        // RUN_PERFORMANCE : 'true'
       },
       metadata: { performance: 'true', screenshotDir },
-    },*/
+    },
     {
       name: 'a11y=true',
       use: {screenshot: 'only-on-failure',trace: 'retain-on-failure' },
