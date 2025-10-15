@@ -7,11 +7,7 @@ test.describe('Instagram', () => {
   });
 
   test.afterAll(async () => {
-
-    const fileName = test.info().file.split('/').pop().replace('.spec.js', '');
-    const filePath = test.info().project.metadata.screenshotDir;
-    writeQUMFiles(test.info(), fileName, filePath);
-
+    writeQUMFiles(test.info());
   });
 
   test('Login', async ({ page, context, baseURL }) => {

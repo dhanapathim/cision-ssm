@@ -2,22 +2,22 @@ import fs from 'fs';
 import path from 'path';
 
 const browserData = [];
+let lastNavigation = 0;
+
 async function getBrowserMetrics(page, action, task, scenario, step) {
     console.log(`\n--- Browser Metrics---`);
-    const perfTimings = await page.evaluate(() => {
+    const perfTimings = await page.evaluate((prevNavStart) => {
         const perf = performance.getEntriesByType('navigation')[0];
-        console.log(`navigation type=${perf.entryType}`);
-        const isNewPageLoad = perf.type === 'navigate' || perf.type === 'reload';
+        const presentNavigation = performance.timeOrigin;
+        if (prevNavStart === presentNavigation) { return { metrics: {}, presentNavigation }; }
 
-    if (!isNewPageLoad) {
-      return {}; // ⛔ Skip - do not calculate metrics
-    }
-        return {
+        const metrics = {
+            startTime: performance.timeOrigin,
             ttfb: perf.responseStart - perf.requestStart, // Time to First Byte
             ttlb: perf.responseEnd - perf.requestStart,   // Time to Last Byte
-            domInteractive: perf.domInteractive ,
-            pageLoad: perf.loadEventEnd ,
-            firstResponse: perf.responseStart ,
+            domInteractive: perf.domInteractive,
+            pageLoad: perf.loadEventEnd,
+            firstResponse: perf.responseStart,
             backendTime: perf.responseStart - perf.requestStart,
             domContentLoaded: perf.domContentLoadedEventEnd,
             networkLatency: perf.connectEnd - perf.connectStart,
@@ -28,15 +28,19 @@ async function getBrowserMetrics(page, action, task, scenario, step) {
             encodedBodySize: perf.encodedBodySize,               // Compressed body
             decodedBodySize: perf.decodedBodySize
         };
-    });
-   // if(perfTimings.isNull)
-    browserData.push({
-        task,
-        scenario,
-        step,
-        action,
-        browserMetrics: perfTimings,
-    });
+        return { metrics, presentNavigation };
+    }, lastNavigation);
+    lastNavigation = perfTimings.presentNavigation;
+    if (Object.keys(perfTimings.metrics).length > 0) {
+        browserData.push({
+            task,
+            scenario,
+            step,
+            action,
+            browserMetrics: perfTimings.metrics,
+        });
+    }
+
 }
 export function writeBrowserMetricsToFile(fileName = 'browserMetrics', filePath) {
     if (browserData.length > 0) {

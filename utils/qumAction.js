@@ -1,7 +1,7 @@
 import { test } from '@playwright/test';
-import { getPerformanceMetrics,writePerformanceMetricsToFile } from '../utils/performanceMetrics.js';
-import { checkAllyViolations,writeA11yMetricsToFile } from './a11yMetrics.js';
-import { getBrowserMetrics,writeBrowserMetricsToFile } from './browserPerformanceMetrics.js';
+import { getPerformanceMetrics, writePerformanceMetricsToFile } from '../utils/performanceMetrics.js';
+import { checkAllyViolations, writeA11yMetricsToFile } from './a11yMetrics.js';
+import { getBrowserMetrics, writeBrowserMetricsToFile } from './browserPerformanceMetrics.js';
 
 
 export let userActionCount = 0;
@@ -86,16 +86,17 @@ export function writeQUM(testInfo) {
   return runA11y || runPerformance || runBrowserMetrics;
 }
 
-export function writeQUMFiles(testInfo,fileName,filePath)
-{
-  if(writeQUM(testInfo)){
+export function writeQUMFiles(testInfo) {
+  if (writeQUM(testInfo)) {
     try {
-      writePerformanceMetricsToFile(fileName,filePath);
-      writeA11yMetricsToFile(fileName,filePath);
-      writeBrowserMetricsToFile(fileName,filePath);
+      const fileName = testInfo.file.split('/').pop().replace('.spec.js', '');
+      const filePath = testInfo.project.metadata.screenshotDir;
+      writePerformanceMetricsToFile(fileName, filePath);
+      writeA11yMetricsToFile(fileName, filePath);
+      writeBrowserMetricsToFile(fileName, filePath);
       console.log('✅ Metrics written successfully');
     } catch (err) {
       console.error('⚠️ Failed to write metrics:', err);
     }
-}
+  }
 }
