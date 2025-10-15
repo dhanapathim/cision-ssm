@@ -1,24 +1,36 @@
-// tests/brandwatch-login.spec.js
 import { test, expect, chromium } from '@playwright/test';
-import { qumAction } from '../utils/qumAction.js';
-import { qumValidation } from '../utils/qumValidation.js';
+import { qumAction, writeQUM } from '../utils/qumAction.js';
+import { qumValidation} from '../utils/qumValidation.js';
+import { writePerformanceMetricsToFile, addOutCome } from '../utils/performanceMetrics.js';
+import { writeA11yMetricsToFile } from '../utils/a11yMetrics.js';
 
 test.describe('Instagram', () => {
   test.beforeAll(async () => {
   });
 
   test.afterAll(async () => {
+    if(writeQUM(test.info())){
+        try {
+          const fileName = test.info().file.split('/').pop().replace('.spec.js', '');
+          const filePath= test.info().project.metadata.screenshotDir;
+          writePerformanceMetricsToFile(fileName,filePath);
+          writeA11yMetricsToFile(fileName,filePath);
+          console.log('✅ Metrics written successfully');
+        } catch (err) {
+          console.error('⚠️ Failed to write metrics:', err);
+        }
+    }
   });
 
   test('Login', async ({ page, context, baseURL }) => {
 
     // 1. Open the url from config
     await qumAction('Open Url', page, async () => {
-      await page.goto(baseURL, { waitUntil: 'load' });
+      await page.goto(baseURL, { waitUntil: 'domcontentloaded' });
     });
 
     // Assert title
-    await qumValidation('Validate url post page load.', page, async () => {
+    await qumValidation('Validate url post page load.', false, page, async () => {
       await expect(page).toHaveTitle('Brandwatch');
     });
 
@@ -74,7 +86,7 @@ test.describe('Instagram', () => {
 
     // Final validation
     // await expect(newTab).toHaveTitle('Social Media Management');
-    await qumValidation('Validate url post page load.', page, async () => {
+    await qumValidation('Validate url post page load.', true, page, async () => {
       await expect(newTab).toHaveTitle('Social Media Management')
     });
   });

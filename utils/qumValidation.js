@@ -10,7 +10,7 @@ export let isValid = false;
  * @param {Page} page - Playwright Page object
  * @param {Function} fn - Async step actions
  */
-export async function qumValidation(description, page, fn) {
+export async function qumValidation(description, isLastAction, page, fn) {
   const info = test.info();
 
   if (!page || typeof page.evaluate !== 'function') {
@@ -26,7 +26,7 @@ export async function qumValidation(description, page, fn) {
   console.log(`Step: ${step}`);
   console.log(`Action: ${description}`);
   const startUserAction = Date.now();
-  
+
   // Execute the step
   await test.step(description, async () => {
     try {
@@ -37,21 +37,21 @@ export async function qumValidation(description, page, fn) {
       throw Error(`Validation failed for Action ${description}.Error details are `, e);
     }
   });
+  if (isLastAction && isValid && process.env.RUN_PERFORMANCE?.toLowerCase() === 'true') {
+    const endUserAction = Date.now();
+    const userActionTime = endUserAction - startUserAction;
 
-  const endUserAction = Date.now();
-  const userActionTime = endUserAction - startUserAction;
-
-  addStepMetric({
-    task: taskName,
-    scenario: scenario,
-    step: step,
-    action: description,
-    userActionTime: userActionTime,
-    systemDelay: 0,
-    networkCalls: [],
-    isValid: isValid
-  });
-
+    addStepMetric({
+      task: taskName,
+      scenario: scenario,
+      step: step,
+      action: description,
+      userActionTime: userActionTime,
+      systemDelay: 0,
+      networkCalls: [],
+      isValid: isValid
+    });
+  }
   console.log(`--- END of Action ${description} ---\n`);
 }
 

@@ -1,7 +1,13 @@
 import { test } from '@playwright/test';
-import { addStepMetric } from '../utils/performanceMetrics.js';
+import { getPerformanceMetrics } from '../utils/performanceMetrics.js';
+import { checkAllyViolations } from './a11yMetrics.js';
 
 export let userActionCount = 0;
+//const runA11y = process.env.RUN_A11Y?.toLowerCase() === 'true' || false;
+//const runPerformance = process.env.RUN_PERFORMANCE?.toLowerCase() === 'true' || false;
+
+//const runA11y = testInfo.project.metadata.ally?.toLowerCase() === 'true' || false;
+//const runPerformance = testInfo.project.metadata.performance?.toLowerCase() === 'true' || false;
 /**
  * namedStep - Wraps a Playwright test step with:
  * - Step description + test info
@@ -33,64 +39,19 @@ export async function qumAction(description, page, fn) {
     await fn();
   });
   const requestSent = performance.now();
-
-  // wait for backend response and UI update
-  await waitForDOMInteractive(page);
-  const systemEnd = performance.now();
-
-  const userActionTime = requestSent - userStart;
-  const systemDelay = systemEnd - requestSent;
-  const totalTime = userActionTime + systemDelay;
-
-  console.log(`User Action Time: ${userActionTime.toFixed(2)}ms`);
-  console.log(`System Delay: ${systemDelay.toFixed(2)}ms`);
-
-  // Capture simplified performance entries
-  const perfEntries = await getPerfEntries(page);
-
-  addStepMetric({
-    task: taskName,
-    scenario: scenario,
-    step: step,
-    action: description,
-    userActionTime,
-    systemDelay,
-    totalTime,
-    networkCalls: perfEntries,
-    isValid: true,
-  });
-
+  const runA11y=info.project.metadata.a11y?.toLowerCase() === 'true' || false;
+  const runPerformance =info.project.metadata.performance?.toLowerCase() === 'true' || false;
+  console.log(`A11y=${runA11y}; perf=${runPerformance}`);
+  if (runPerformance) {
+    await getPerformanceMetrics(page, taskName, scenario, step, description, userStart, requestSent);
+  }
   userActionCount++;
+  await page.waitForTimeout(3000);
+  if (runA11y) {
+    checkAllyViolations(page, description, taskName, scenario, step);
+  }
   console.log(`--- END of Action ${description} ---\n`);
-}
-
-/**
- * Wait until the DOM is interactive (or complete).
- * Works for both normal web pages and SPAs that trigger DOM changes early.
- */
-export async function waitForDOMInteractive(page, timeout = 15000) {
-  await page.waitForFunction(
-    () => ['interactive', 'complete'].includes(document.readyState),
-    { timeout }
-  );
-
-  // Small buffer to ensure scripts attached to DOM have executed
-  await page.waitForTimeout(300);
-}
-
-async function getPerfEntries(page) {
-  return await page.evaluate(() => {
-    const entries = performance.getEntries()
-      .filter(e => e.entryType === 'navigation' || e.entryType === 'resource')
-      .map(entry => ({
-        name: entry.name,
-        type: entry.entryType,
-        status: 200, // approximate, real status requires interception
-        time: entry.duration.toFixed(2)
-      }));
-    performance.clearResourceTimings();
-    return entries;
-  });
+  await page.waitForTimeout(6000);
 }
 
 /**
@@ -108,25 +69,9 @@ function formatTaskName(fileName) {
     .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(' ');
 }
-
-async function waitForPageStability(page, stabilityTime = 800, timeout = 5000) {
-  await page.evaluate(
-    ({ stabilityTime, timeout }) => {
-      const wait = ms => new Promise(r => setTimeout(r, ms));
-
-      let lastChange = Date.now();
-      const observer = new MutationObserver(() => (lastChange = Date.now()));
-      observer.observe(document.body, { childList: true, subtree: true, attributes: true });
-
-      const start = Date.now();
-      return (async () => {
-        while (Date.now() - start < timeout) {
-          if (Date.now() - lastChange > stabilityTime) break;
-          await wait(100);
-        }
-        observer.disconnect();
-      })();
-    },
-    { stabilityTime, timeout }
-  );
+export function writeQUM(testInfo) {
+  const runA11y=testInfo.project.metadata.a11y?.toLowerCase() === 'true' || false;
+  const runPerformance =testInfo.project.metadata.performance?.toLowerCase() === 'true' || false;
+  console.log(`in writeQUM a11y=${testInfo.project.metadata.a11y} and perf=${testInfo.project.metadata.performance}`);
+  return runA11y || runPerformance;
 }
