@@ -31,7 +31,7 @@ export function checkAllyViolations(page, action, task, scenario, step) {
               helpUrl: violation.helpUrl,
               level: violation.tags,
               selector,
-              element: el
+              element: node.html
             });
 
           } catch (error) {

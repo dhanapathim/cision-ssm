@@ -5,9 +5,13 @@ const browserData = [];
 async function getBrowserMetrics(page, action, task, scenario, step) {
     console.log(`\n--- Browser Metrics---`);
     const perfTimings = await page.evaluate(() => {
-        const perf = performance.getEntriesByType('navigation')[0]
+        const perf = performance.getEntriesByType('navigation')[0];
+        console.log(`navigation type=${perf.entryType}`);
+        const isNewPageLoad = perf.type === 'navigate' || perf.type === 'reload';
 
-
+    if (!isNewPageLoad) {
+      return {}; // ⛔ Skip - do not calculate metrics
+    }
         return {
             ttfb: perf.responseStart - perf.requestStart, // Time to First Byte
             ttlb: perf.responseEnd - perf.requestStart,   // Time to Last Byte
@@ -25,6 +29,7 @@ async function getBrowserMetrics(page, action, task, scenario, step) {
             decodedBodySize: perf.decodedBodySize
         };
     });
+   // if(perfTimings.isNull)
     browserData.push({
         task,
         scenario,
