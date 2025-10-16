@@ -12,3 +12,6 @@ allure-results
 playwright-report
 screenshots
 test-results
+qum
+.idea
+videos

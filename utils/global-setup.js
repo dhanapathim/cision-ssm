@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
+import path from 'path';
 
 export default async () => {
-  // Load environment variables from .env file
   dotenv.config();
 
   // Optional: log that it's loaded

@@ -18,15 +18,17 @@ test.describe('Instagram', () => {
     });
 
     // Assert title
-    await qumValidation('Validate url post page load.', false,page, async () => {
+    await qumValidation('Validate url post page load.', false, page, async () => {
       await expect(page).toHaveTitle('Brandwatch');
     });
+
+    // await page.goto(baseURL, { waitUntil: 'load' });
 
     // 2. Accept Cookies
     await qumAction('Accept Cookies', page, async () => {
       await page.locator("//*[@id='onetrust-accept-btn-handler']").click();
     });
-
+    
     // 3. Click Sign in button
     await qumAction('Click Sign In Tab', page, async () => {
       await page.locator('//*[@id="spanrotate"]').click();
@@ -72,7 +74,7 @@ test.describe('Instagram', () => {
 
     // Final validation
     // await expect(newTab).toHaveTitle('Social Media Management');
-    await qumValidation('Validate url post page load.', true,page, async () => {
+    await qumValidation('Validate url post page load.', true, page, async () => {
       await expect(newTab).toHaveTitle('Social Media Management')
     });
   });

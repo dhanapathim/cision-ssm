@@ -1,5 +1,6 @@
 import { test } from '@playwright/test';
-
+import { addStepMetric } from '../utils/performanceMetrics.js';
+export let isValid = false;
 /**
  * namedStep - Wraps a Playwright test step with:
  * - Step description + test info
@@ -9,9 +10,9 @@ import { test } from '@playwright/test';
  * @param {Page} page - Playwright Page object
  * @param {Function} fn - Async step actions
  */
-export async function qumValidation(description, page, fn) {
+export async function qumValidation(description, isLastAction, page, fn) {
   const info = test.info();
-
+  isValid = false;
   if (!page || typeof page.evaluate !== 'function') {
     throw new Error(`namedStep expected a Playwright Page, but got: ${page}`);
   }
@@ -24,19 +25,34 @@ export async function qumValidation(description, page, fn) {
   console.log(`Scenario: ${scenario}`);
   console.log(`Step: ${step}`);
   console.log(`Action: ${description}`);
+  const startUserAction = Date.now();
 
   // Execute the step
   await test.step(description, async () => {
-    let valid = false
     try {
       await fn();
-      valid = true;
-    } catch(e) {
+      isValid = true;
+    } catch (e) {
       console.error(`Validation failed for Action ${description}.`);
       throw Error(`Validation failed for Action ${description}.Error details are `, e);
     }
-    console.log(`Validation is ${valid}`);
   });
+  if (isLastAction ) {
+    const endUserAction = Date.now();
+    const userActionTime = endUserAction - startUserAction;
+
+    addStepMetric({
+      task: taskName,
+      scenario: scenario,
+      step: step,
+      action: description,
+      userActionTime: userActionTime,
+      systemDelay: 0,
+      networkCalls: [],
+      isValid: isValid
+    });
+  }
+  else {isValid=false;}
   console.log(`--- END of Action ${description} ---\n`);
 }
 
