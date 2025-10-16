@@ -14,15 +14,13 @@ test.describe('Instagram', () => {
 
     // 1. Open the url from config
     await qumAction('Open Url', page, async () => {
-      await page.goto(baseURL, { waitUntil: 'load' });
+      await page.goto(baseURL, { waitUntil: 'domcontentloaded' });
     });
 
     // Assert title
-    await qumValidation('Validate url post page load.', page, async () => {
+    await qumValidation('Validate url post page load.', false,page, async () => {
       await expect(page).toHaveTitle('Brandwatch');
     });
-
-    // await page.goto(baseURL, { waitUntil: 'load' });
 
     // 2. Accept Cookies
     await qumAction('Accept Cookies', page, async () => {
@@ -52,13 +50,13 @@ test.describe('Instagram', () => {
     // 5. Enter username.
     await qumAction('Enter username', newTab, async () => {
       await newTab.locator('//*[@id="lookupUsername"]').fill(process.env.BW_USERNAME);
-      await newTab.waitForLoadState('load');
+      await newTab.waitForLoadState('domcontentloaded');
     });
 
     // 6. Click Next to go to Password Page
     await qumAction('Click Next go to password Page', newTab, async () => {
       await newTab.locator('//*[@id="continue-btn-text"]').click();
-      await newTab.waitForLoadState('load');
+      await newTab.waitForLoadState('domcontentloaded');
     });
 
     // 7. Enter Password
@@ -70,11 +68,11 @@ test.describe('Instagram', () => {
     await qumAction('Click SignIn Button', newTab, async () => {
       await newTab.locator('//*[@id="signin-btn-text"]').click();
     });
-    await newTab.waitForLoadState('load');
+    await newTab.waitForLoadState('domcontentloaded');
 
     // Final validation
     // await expect(newTab).toHaveTitle('Social Media Management');
-    await qumValidation('Validate url post page load.', page, async () => {
+    await qumValidation('Validate url post page load.', true,page, async () => {
       await expect(newTab).toHaveTitle('Social Media Management')
     });
   });

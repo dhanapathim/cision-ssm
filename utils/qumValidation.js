@@ -12,7 +12,7 @@ export let isValid = false;
  */
 export async function qumValidation(description, isLastAction, page, fn) {
   const info = test.info();
-
+  isValid = false;
   if (!page || typeof page.evaluate !== 'function') {
     throw new Error(`namedStep expected a Playwright Page, but got: ${page}`);
   }
@@ -37,7 +37,7 @@ export async function qumValidation(description, isLastAction, page, fn) {
       throw Error(`Validation failed for Action ${description}.Error details are `, e);
     }
   });
-  if (isLastAction && isValid && process.env.RUN_PERFORMANCE?.toLowerCase() === 'true') {
+  if (isLastAction ) {
     const endUserAction = Date.now();
     const userActionTime = endUserAction - startUserAction;
 
@@ -52,6 +52,7 @@ export async function qumValidation(description, isLastAction, page, fn) {
       isValid: isValid
     });
   }
+  else {isValid=false;}
   console.log(`--- END of Action ${description} ---\n`);
 }
 

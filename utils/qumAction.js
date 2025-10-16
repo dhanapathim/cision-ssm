@@ -50,15 +50,16 @@ export async function qumAction(description, page, fn) {
     await getPerformanceMetrics(page, taskName, scenario, step, description, userStart, requestSent);
   }
   userActionCount++;
-  await page.waitForTimeout(3000);
+  //await page.waitForTimeout(3000);
   if (runA11y) {
+    //await page.waitForTimeout(3000);
     checkAllyViolations(page, description, taskName, scenario, step);
   }
   if (runBrowserMetrics) {
     await getBrowserMetrics(page, description, taskName, scenario, step);
   }
   console.log(`--- END of Action ${description} ---\n`);
-  await page.waitForTimeout(6000);
+  //await page.waitForTimeout(6000);
 }
 
 /**
@@ -80,7 +81,7 @@ export function writeQUM(testInfo) {
   const runA11y = testInfo.project.metadata.a11y?.toLowerCase() === 'true' || false;
   const runPerformance = testInfo.project.metadata.performance?.toLowerCase() === 'true' || false;
   const runBrowserMetrics = testInfo.project.metadata.browserMetrics?.toLowerCase() === 'true' || false;
-  console.log(`in writeQUM a11y=${testInfo.project.metadata.a11y} ,
+  console.log(`In writeQUM a11y=${testInfo.project.metadata.a11y} ,
      perf=${testInfo.project.metadata.performance}
      browser=${testInfo.project.metadata.browserMetrics}`);
   return runA11y || runPerformance || runBrowserMetrics;

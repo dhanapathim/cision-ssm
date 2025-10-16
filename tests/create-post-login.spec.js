@@ -28,7 +28,7 @@ test.describe('Instagram', () => {
     await qumAction('Accept Cookies', page, async () => {
       await page.locator("//*[@id='onetrust-accept-btn-handler']").click();
     });
-
+    
     // 3. Click Sign in button
     await qumAction('Click Sign In Tab', page, async () => {
       await page.locator('//*[@id="spanrotate"]').click();
@@ -52,13 +52,13 @@ test.describe('Instagram', () => {
     // 5. Enter username.
     await qumAction('Enter username', newTab, async () => {
       await newTab.locator('//*[@id="lookupUsername"]').fill(process.env.BW_USERNAME);
-      await newTab.waitForLoadState('load');
+      await newTab.waitForLoadState('domcontentloaded');
     });
 
     // 6. Click Next to go to Password Page
     await qumAction('Click Next go to password Page', newTab, async () => {
       await newTab.locator('//*[@id="continue-btn-text"]').click();
-      await newTab.waitForLoadState('load');
+      await newTab.waitForLoadState('domcontentloaded');
     });
 
     // 7. Enter Password
@@ -70,7 +70,7 @@ test.describe('Instagram', () => {
     await qumAction('Click SignIn Button', newTab, async () => {
       await newTab.locator('//*[@id="signin-btn-text"]').click();
     });
-    await newTab.waitForLoadState('load');
+    await newTab.waitForLoadState('domcontentloaded');
 
     // Final validation
     // await expect(newTab).toHaveTitle('Social Media Management');

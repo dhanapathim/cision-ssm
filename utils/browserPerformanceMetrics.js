@@ -5,6 +5,7 @@ const browserData = [];
 let lastNavigation = 0;
 
 async function getBrowserMetrics(page, action, task, scenario, step) {
+    
     console.log(`\n--- Browser Metrics---`);
     const perfTimings = await page.evaluate((prevNavStart) => {
         const perf = performance.getEntriesByType('navigation')[0];

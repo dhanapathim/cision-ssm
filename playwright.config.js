@@ -30,7 +30,7 @@ export default defineConfig({
   },
 
   projects: [ 
-   // { name: 'chromium', use: { ...devices['Desktop Chrome'] }},
+   //{ name: 'chromium', use: { ...devices['Desktop Chrome'] }},
     {
       name: 'performance=true',
       use: { screenshot: 'only-on-failure',trace: 'retain-on-failure',
