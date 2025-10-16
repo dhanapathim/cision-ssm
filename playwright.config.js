@@ -1,5 +1,4 @@
-// @ts-check
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig } from '@playwright/test';
 import path from 'path';
 export const exe_Time = getFormattedTimestamp();
 console.log(exe_Time);
@@ -23,9 +22,6 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
   baseURL: process.env.BASE_URL || 'https://www.brandwatch.com/',
-
-    
-    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
   },
 
@@ -34,20 +30,24 @@ export default defineConfig({
     {
       name: 'performance=true',
       use: { screenshot: 'only-on-failure',trace: 'retain-on-failure',
-       // RUN_PERFORMANCE : 'true'
       },
       metadata: { performance: 'true', screenshotDir },
     },
-    {
-      name: 'a11y=true',
-      use: {screenshot: 'only-on-failure',trace: 'retain-on-failure' },
-      metadata: { a11y: 'true', screenshotDir },
-    },
+    // {
+    //   name: 'a11y=true',
+    //   use: {screenshot: 'only-on-failure',trace: 'retain-on-failure' },
+    //   metadata: { a11y: 'true', screenshotDir },
+    // },
     {
       name: 'browserMetrics=true',
       use: {screenshot: 'only-on-failure',trace: 'retain-on-failure' },
       metadata: { browserMetrics: 'true', screenshotDir },
     },
+    // {
+    //   name: 'sequential',
+    //   use: {screenshot: 'only-on-failure',trace: 'retain-on-failure' },
+    //   metadata: { browserMetrics: 'true', a11y: 'true', performance: 'true', screenshotDir },
+    // },
  ],
   globalSetup: './utils/global-setup.js'
 });

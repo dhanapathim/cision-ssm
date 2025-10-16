@@ -1,4 +1,4 @@
-import { test, expect, chromium } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 import { qumAction, writeQUMFiles } from '../utils/qumAction.js';
 import { qumValidation } from '../utils/qumValidation.js';
 
@@ -21,8 +21,6 @@ test.describe('Instagram', () => {
     await qumValidation('Validate url post page load.', false, page, async () => {
       await expect(page).toHaveTitle('Brandwatch');
     });
-
-    // await page.goto(baseURL, { waitUntil: 'load' });
 
     // 2. Accept Cookies
     await qumAction('Accept Cookies', page, async () => {
@@ -69,14 +67,13 @@ test.describe('Instagram', () => {
     // 8. Click Sign in
     await qumAction('Click SignIn Button', newTab, async () => {
       await newTab.locator('//*[@id="signin-btn-text"]').click();
+      await newTab.waitForLoadState('domcontentloaded');
     });
-    await newTab.waitForLoadState('domcontentloaded');
 
     // Final validation
     // await expect(newTab).toHaveTitle('Social Media Management');
     await qumValidation('Validate url post page load.', true, page, async () => {
-      await expect(newTab).toHaveTitle('Social Media Management')
+      await expect(newTab).toHaveTitle('Social Media Management');
     });
   });
-
 });
